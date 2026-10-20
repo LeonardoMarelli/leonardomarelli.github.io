@@ -17,24 +17,10 @@
     </p>
 
     <!-- ===================================================================== -->
-    <section>
-        <h2>1. Task</h2>
-        <ol>
-            <li><strong>Toy elliptic-curve scheme (Part 1 recap):</strong> encrypt and decrypt a message, describe the steps and the role of the keys (section 7).</li>
-            <li><strong>Caesar cipher:</strong> encrypt and decrypt the same message (section 3).</li>
-            <li><strong>Comparison:</strong> similarities and differences in encryption, decryption, key space and statistics (section 12).</li>
-            <li><strong>Statistical cryptanalysis of the Caesar cipher:</strong> recover the key from letter statistics (section 4).</li>
-            <li><strong>Test on different lengths:</strong> effectiveness and limitations (section 5).</li>
-            <li><strong>Optional, alternative attacks:</strong> exhaustive search, letter-frequency analysis, log-likelihood, n-gram scoring (section 6).</li>
-            <li><strong>Attack on the restricted key space</strong> of the toy scheme, and comparison with the Caesar attack (section 8).</li>
-            <li><strong>Why this does not work against a properly configured ECC scheme</strong> (section 9).</li>
-            <li><strong>Optional, other weaknesses:</strong> from the restricted key space and from the design of the toy scheme (section 10).</li>
-        </ol>
-    </section>
 
     <!-- ===================================================================== -->
     <section>
-        <h2>2. Letter statistics of the language</h2>
+        <h2>1. Letter statistics of the language</h2>
         <p>
             Letters do not occur equally often. In English, E is the most common letter (about 12.7%), while Z and Q
             are rare. The reference values used on this page are:
@@ -49,7 +35,7 @@
 
     <!-- ===================================================================== -->
     <section>
-        <h2>3. Caesar cipher: encryption and decryption</h2>
+        <h2>2. Caesar cipher: encryption and decryption</h2>
         <p>
             The Caesar cipher replaces each letter by the letter a fixed number of places further along the alphabet,
             wrapping around after Z. With letters numbered A = 0 to Z = 25 and key <code>k</code>:
@@ -79,7 +65,7 @@
 
     <!-- ===================================================================== -->
     <section>
-        <h2>4. Statistical cryptanalysis of the Caesar cipher</h2>
+        <h2>3. Statistical cryptanalysis of the Caesar cipher</h2>
 
         <h3>Method</h3>
         <p>
@@ -121,7 +107,7 @@
 
     <!-- ===================================================================== -->
     <section>
-        <h2>5. Effect of the text length</h2>
+        <h2>4. Effect of the text length</h2>
         <p>
             The attack above depends on how well the sample of letters matches the reference distribution. To measure this,
             the button below takes random windows of the English sample of different lengths, encrypts each with a random
@@ -152,7 +138,7 @@
 
     <!-- ===================================================================== -->
     <section>
-        <h2>6. Alternative approaches (optional)</h2>
+        <h2>5. Alternative approaches (optional)</h2>
         <ul>
             <li><strong>Exhaustive key search:</strong> decrypt with all 26 keys and read the results. It always works, but the final choice
                 still needs a judgment or a statistic. With 25 useful keys it costs almost nothing.</li>
@@ -168,7 +154,7 @@
 
     <!-- ===================================================================== -->
     <section>
-        <h2>7. The toy elliptic-curve scheme (Part 1 recap)</h2>
+        <h2>6. The toy elliptic-curve scheme (Part 1 recap)</h2>
         <p>
             The toy scheme uses the curve <code>y² = x³ + 7</code>, which has the same shape as secp256k1 (a = 0, b = 7),
             but over the small prime field <code>F<sub>1019</sub></code>. The real secp256k1 uses a 256-bit prime. Because
@@ -204,7 +190,7 @@
 
     <!-- ===================================================================== -->
     <section>
-        <h2>8. Attack on the restricted key space</h2>
+        <h2>7. Attack on the restricted key space</h2>
         <p>
             The owner restricts <code>d</code> to a small range, which keeps the experiment computationally feasible. The attacker knows
             <code>G</code>, <code>n</code>, the curve, <code>Q</code> and the blocks <code>(C1, C2)</code>, but not <code>d</code> or <code>r</code>.
@@ -237,7 +223,7 @@
 
     <!-- ===================================================================== -->
     <section>
-        <h2>9. Why this approach fails against a properly configured ECC scheme</h2>
+        <h2>8. Why this approach fails against a properly configured ECC scheme</h2>
         <p>
             Exhaustive search takes time proportional to the size of the key space. A properly configured scheme uses a private key of about 256 bits,
             so the key space has about 2<sup>256</sup> elements.
@@ -260,7 +246,7 @@
 
     <!-- ===================================================================== -->
     <section>
-        <h2>10. Weaknesses of the toy scheme (optional)</h2>
+        <h2>9. Weaknesses of the toy scheme (optional)</h2>
 
         <h3>Weaknesses that come from the restricted key space</h3>
         <ul>
@@ -284,7 +270,7 @@
 
     <!-- ===================================================================== -->
     <section>
-        <h2>11. Modern scheme for comparison: ECDH, HKDF and AES-GCM</h2>
+        <h2>10. Modern scheme for comparison: ECDH, HKDF and AES-GCM</h2>
         <p>
             For comparison, the page also runs a practical scheme in the browser. The sender uses a fresh ephemeral key pair, computes an ECDH shared secret with the recipient's public key,
             derives an AES-256 key with HKDF-SHA-256, and encrypts the message with AES-GCM, which also adds an authentication tag.
@@ -309,7 +295,7 @@
 
     <!-- ===================================================================== -->
     <section>
-        <h2>12. Similarities and differences: Caesar cipher and elliptic-curve scheme</h2>
+        <h2>11. Similarities and differences: Caesar cipher and elliptic-curve scheme</h2>
 
         <h3>Direct comparison: Caesar vs the toy scheme (measured)</h3>
         <p>
@@ -354,7 +340,7 @@
 
     <!-- ===================================================================== -->
     <section>
-        <h2>13. Conclusion</h2>
+        <h2>12. Conclusion</h2>
         <p>
             The Caesar cipher is broken by a letter-frequency test, with or without a known key space, and it works well only for long texts.
             The toy elliptic-curve scheme is correct as a mathematical construction, but its key space and its group are too small to be secure.
