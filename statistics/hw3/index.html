@@ -3,91 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMWK 3 - Caesar Cipher vs Elliptic-Curve Encryption</title>
+    <title>HMWK 3 - Caesar Cipher, Toy Elliptic-Curve Scheme and Key-Space Attacks</title>
     <link rel="stylesheet" href="../statistics.css">
 </head>
 <body>
 <main>
     <div class="breadcrumb"><a href="../index.html">Statistics</a> / Homework 3</div>
 
-    <h1>Caesar Cipher vs Elliptic-Curve Encryption</h1>
+    <h1>Caesar Cipher, Toy Elliptic-Curve Scheme and Key-Space Attacks</h1>
     <p class="description">
-        Encrypt the same message with an old substitution cipher and with a modern elliptic-curve scheme,
-        then compare the statistics of the two ciphertexts.
+        Encrypt and decrypt with a Caesar cipher and with a toy elliptic-curve scheme, attack both,
+        and compare the statistics and the key spaces.
     </p>
 
+    <!-- ===================================================================== -->
     <section>
-        <h2>1. What is the Caesar cipher?</h2>
-        <p>
-            The Caesar cipher is a <strong>substitution cipher</strong>: every letter of the message is replaced
-            by the letter a fixed number of places further along the alphabet. The number of places is the
-            <strong>key</strong>. With key 3, A becomes D, B becomes E, and so on, with the alphabet wrapping
-            around after Z. The word <code>HELLO</code> becomes <code>KHOOR</code>.
-        </p>
-        <p>
-            In formulas, with letters numbered A = 0 to Z = 25 and key <code>k</code>:
-        </p>
-        <p><strong><code>C = (P + k) mod 26</code></strong> (encryption), <strong><code>P = (C − k) mod 26</code></strong> (decryption)</p>
-        <p>
-            The cipher is named after Julius Caesar, who according to the historian Suetonius used a shift of three
-            for his private correspondence. Its main weaknesses are clear from the formula. There are only 25 useful
-            keys, so a computer, or a patient person, can try all of them. Moreover, the cipher does not change the
-            <em>frequency</em> of the letters: the most common letter of the plaintext is still the most common letter
-            of the ciphertext, just shifted. Arab scholars were using frequency analysis to break such ciphers by the
-            9th century.
-        </p>
+        <h2>1. Task</h2>
+        <ol>
+            <li><strong>Toy elliptic-curve scheme (Part 1 recap):</strong> encrypt and decrypt a message, describe the steps and the role of the keys (section 7).</li>
+            <li><strong>Caesar cipher:</strong> encrypt and decrypt the same message (section 3).</li>
+            <li><strong>Comparison:</strong> similarities and differences in encryption, decryption, key space and statistics (section 12).</li>
+            <li><strong>Statistical cryptanalysis of the Caesar cipher:</strong> recover the key from letter statistics (section 4).</li>
+            <li><strong>Test on different lengths:</strong> effectiveness and limitations (section 5).</li>
+            <li><strong>Optional, alternative attacks:</strong> exhaustive search, letter-frequency analysis, log-likelihood, n-gram scoring (section 6).</li>
+            <li><strong>Attack on the restricted key space</strong> of the toy scheme, and comparison with the Caesar attack (section 8).</li>
+            <li><strong>Why this does not work against a properly configured ECC scheme</strong> (section 9).</li>
+            <li><strong>Optional, other weaknesses:</strong> from the restricted key space and from the design of the toy scheme (section 10).</li>
+        </ol>
     </section>
 
+    <!-- ===================================================================== -->
     <section>
-        <h2>2. Task</h2>
-        <p>
-            Encrypt a message with a Caesar cipher and with a modern elliptic-curve scheme. Study the statistical
-            difference between the two ciphertexts. Using the letter distribution of Italian or English, compare
-            the Caesar ciphertext with the reference distribution to find the key, decode the message, and then
-            try the same attack on the elliptic-curve ciphertext.
-        </p>
-    </section>
-
-    <section>
-        <h2>3. Letter statistics of the language</h2>
+        <h2>2. Letter statistics of the language</h2>
         <p>
             Letters do not occur equally often. In English, E is the most common letter (about 12.7%), while Z and Q
-            are rare (below 0.1%). The distribution is characteristic of each language, so it can be used as a
-            fingerprint. The reference values used on this page are:
+            are rare. The reference values used on this page are:
         </p>
         <ul>
             <li><strong>English:</strong> the Oxford University Mathematical Institute table.</li>
-            <li><strong>Italian:</strong> the sttmedia.com character-frequency table. Other tables differ by about a percent, so the values are approximate.
-                J, K, W, X and Y are not Italian letters, so they are set to a very small value.</li>
+            <li><strong>Italian:</strong> the sttmedia.com character-frequency table. Other tables differ by about a percent.
+                J, K, W, X and Y are not Italian letters, so they get a very small value.</li>
         </ul>
         <div id="reference"></div>
     </section>
 
+    <!-- ===================================================================== -->
     <section>
-        <h2>4. How the attack works</h2>
+        <h2>3. Caesar cipher: encryption and decryption</h2>
         <p>
-            Shifting does not change the shape of the distribution, only its position. So the attack is:
+            The Caesar cipher replaces each letter by the letter a fixed number of places further along the alphabet,
+            wrapping around after Z. With letters numbered A = 0 to Z = 25 and key <code>k</code>:
         </p>
-        <ol>
-            <li>Count the letters in the ciphertext.</li>
-            <li>For each of the 26 possible keys (including 0), shift the text back and compare its letter counts
-                with the reference distribution using the <strong>chi-square statistic</strong>:
-                <code>χ² = Σ (observed − expected)² / expected</code>, where <code>expected = total × reference frequency</code>.</li>
-            <li>The key with the <strong>smallest</strong> chi-square is the most likely one.</li>
-        </ol>
-        <p>
-            A small chi-square means the decoded letter counts match the language. The absolute value grows with the
-            length of the text, so the most useful test is to compare the candidates with each other. As a rough
-            guide, the 5% critical value for 25 degrees of freedom is 37.65.
-        </p>
-    </section>
+        <p><strong><code>C = (P + k) mod 26</code></strong> (encryption) and <strong><code>P = (C − k) mod 26</code></strong> (decryption).</p>
+        <p>Spaces, digits and punctuation are left unchanged. The plaintext below is an English paragraph.</p>
 
-    <section>
-        <h2>5. Caesar cipher: encryption and attack</h2>
-        <p>
-            The plaintext below is an English paragraph of about 600 letters. Change the text or the key and press
-            "Encrypt". Then press "Analyse" to decode the ciphertext without knowing the key.
-        </p>
         <div class="card">
             <p><label>Plaintext:<br>
                 <textarea id="caesar-plain" rows="6" style="width:100%;font-family:inherit;"></textarea>
@@ -98,6 +67,42 @@
             <pre id="caesar-cipher-out" class="output"></pre>
         </div>
 
+        <div class="card">
+            <p><label>Ciphertext to decrypt (same key):<br>
+                <textarea id="caesar-decrypt-in" rows="4" style="width:100%;font-family:inherit;"></textarea>
+            </label></p>
+            <p><button id="caesar-decrypt">Decrypt</button></p>
+            <pre id="caesar-decrypt-out" class="output"></pre>
+            <p id="caesar-roundtrip"></p>
+        </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <section>
+        <h2>4. Statistical cryptanalysis of the Caesar cipher</h2>
+
+        <h3>Method</h3>
+        <p>
+            Shifting does not change the shape of the letter distribution, only its position. The attack uses a
+            reference distribution <code>f<sub>i</sub></code> of the language and works in three steps:
+        </p>
+        <ol>
+            <li>Count the letters of the ciphertext.</li>
+            <li>For each of the 26 possible keys (including 0), decrypt and compare the letter counts with the reference
+                using the <strong>chi-square statistic</strong>:
+                <code>χ² = Σ (observed − expected)² / expected</code>, with <code>expected = total × f<sub>i</sub></code>.</li>
+            <li>Choose the key with the <strong>smallest</strong> chi-square.</li>
+        </ol>
+        <p>
+            The 5% critical value for 25 degrees of freedom is 37.65. The absolute value grows with the length of the text,
+            so the candidates are best compared with each other.
+        </p>
+
+        <h3>Interactive attack</h3>
+        <p>
+            The ciphertext below was produced with key 7 in section 3. Press "Analyse" to recover the key without knowing it.
+            You can paste another ciphertext and choose the reference language.
+        </p>
         <div class="card">
             <p><label>Ciphertext to analyse:<br>
                 <textarea id="caesar-cipher-in" rows="6" style="width:100%;font-family:inherit;"></textarea>
@@ -111,34 +116,179 @@
             <button id="caesar-analyse">Analyse</button></p>
         </div>
         <div id="caesar-result"></div>
+        <div id="compare"></div>
     </section>
 
+    <!-- ===================================================================== -->
     <section>
-        <h2>6. Modern elliptic-curve encryption</h2>
+        <h2>5. Effect of the text length</h2>
         <p>
-            Elliptic-curve cryptography does not hide a message by shifting its letters. The scheme used here
-            is the standard <strong>ECIES</strong> pattern, built from components that are used in practice:
+            The attack above depends on how well the sample of letters matches the reference distribution. To measure this,
+            the button below takes random windows of the English sample of different lengths, encrypts each with a random
+            key 1..25, and checks whether the attack returns the right key. Each row uses 300 trials.
+        </p>
+        <p><button id="caesar-length">Run the length experiment again</button></p>
+        <div id="caesar-length-out"></div>
+
+        <h3>Same experiment on Italian</h3>
+        <p>
+            The same test on the Italian sample, with the Italian frequencies. Accents are removed before counting, which changes the letter counts slightly.
+        </p>
+        <div id="caesar-length-it"></div>
+
+        <h3>Effectiveness and limitations</h3>
+        <ul>
+            <li><strong>Short texts:</strong> with a few letters the observed counts are noisy, and the correct shift often
+                does not have the smallest chi-square. The key is then recovered only sometimes.</li>
+            <li><strong>Longer texts:</strong> the counts approach the reference distribution, so the correct key becomes
+                the clear minimum. The success rate rises toward 100% and the mean rank of the true key falls to 1.</li>
+            <li><strong>Limits of the method:</strong> the test assumes that the plaintext is ordinary prose in the chosen language.
+                Names, numbers, codes, or text in another language, or a short message that is unusually rich in rare letters,
+                all break it. The statistic also needs a reliable reference distribution; the tables used here differ by about a percent between sources.</li>
+            <li><strong>Limits of the experiment:</strong> the corpus is only about 600 letters, so windows for long lengths overlap heavily.
+                The measured rates are therefore not independent estimates. A larger corpus would give more reliable numbers.</li>
+        </ul>
+    </section>
+
+    <!-- ===================================================================== -->
+    <section>
+        <h2>6. Alternative approaches (optional)</h2>
+        <ul>
+            <li><strong>Exhaustive key search:</strong> decrypt with all 26 keys and read the results. It always works, but the final choice
+                still needs a judgment or a statistic. With 25 useful keys it costs almost nothing.</li>
+            <li><strong>Letter-frequency analysis (chi-square):</strong> the method of section 4. It uses the whole distribution.</li>
+            <li><strong>Log-likelihood:</strong> the score <code>Σ count<sub>i</sub> · ln(f<sub>i</sub>)</code> is the log of the probability of the observed counts under the reference model. It
+                is maximised by the same key as chi-square in most cases, because for large samples the two statistics are closely related.
+                The sections above show both columns.</li>
+            <li><strong>N-gram scoring:</strong> instead of single letters, score pairs or triples of letters (for example with English bigram tables).
+                This uses more of the structure of the language, so it is more powerful for short texts. It was not implemented here, because a reliable bigram table
+                needs a large corpus, and the only corpus available is the 600-letter sample that is also used for testing. Estimating the table from the test text itself would be a form of data leakage.</li>
+        </ul>
+    </section>
+
+    <!-- ===================================================================== -->
+    <section>
+        <h2>7. The toy elliptic-curve scheme (Part 1 recap)</h2>
+        <p>
+            The toy scheme uses the curve <code>y² = x³ + 7</code>, which has the same shape as secp256k1 (a = 0, b = 7),
+            but over the small prime field <code>F<sub>1019</sub></code>. The real secp256k1 uses a 256-bit prime. Because
+            <code>1019 ≡ 2 (mod 3)</code>, the curve has 1019 affine points plus the point at infinity O. The subgroup generated by the base point G
+            has a much smaller order n, shown in the table.
+        </p>
+
+        <h3>Main steps and role of the keys</h3>
+        <ol>
+            <li><strong>Public parameters:</strong> the curve, the base point G and its order n. Everybody knows these.</li>
+            <li><strong>Key generation:</strong> the owner picks a private key <code>d</code> at random in the restricted range 1..KEY_MAX, and publishes <code>Q = dG</code>.
+                <code>d</code> stays secret. <code>Q</code> is public. Recovering <code>d</code> from <code>Q</code> is the elliptic-curve discrete logarithm problem.</li>
+            <li><strong>Encoding:</strong> each symbol <code>i</code> (A..Z and space, so 27 symbols) is mapped to the point <code>M<sub>i</sub> = (i+1)G</code>.</li>
+            <li><strong>Encryption:</strong> for each symbol the sender picks a fresh random <code>r</code>, and sends <code>C1 = rG</code> and <code>C2 = M<sub>i</sub> + rQ</code>.
+                <code>r</code> is never sent. Using a new <code>r</code> for each symbol makes equal symbols produce different ciphertexts.</li>
+            <li><strong>Decryption:</strong> the owner computes <code>S = d·C1 = drG = rQ</code>, then <code>M = C2 − S</code>, and finds the symbol whose point is <code>M</code>.</li>
+        </ol>
+        <p>
+            The private key <code>d</code> is what turns the public point <code>C1</code> into the shared point <code>rQ</code>. Anyone who knows <code>d</code>
+            can decrypt. Anyone who does not know <code>d</code> would have to compute <code>rQ</code> from <code>C1 = rG</code> and <code>Q</code>, which is a Diffie–Hellman problem on the curve.
+        </p>
+
+        <div class="card">
+            <div id="toy-setup"></div>
+            <p><label>Message (letters and spaces):<br>
+                <textarea id="toy-plain" rows="2" style="width:100%;font-family:inherit;"></textarea>
+            </label></p>
+            <p><button id="toy-encrypt">Encrypt</button></p>
+            <div id="toy-cipher"></div>
+            <pre id="toy-decrypt-out" class="output"></pre>
+        </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <section>
+        <h2>8. Attack on the restricted key space</h2>
+        <p>
+            The owner restricts <code>d</code> to a small range, which keeps the experiment computationally feasible. The attacker knows
+            <code>G</code>, <code>n</code>, the curve, <code>Q</code> and the blocks <code>(C1, C2)</code>, but not <code>d</code> or <code>r</code>.
+            Two attacks are shown below:
         </p>
         <ul>
-            <li><strong>ECDH on P-256:</strong> the sender and the recipient agree on a shared secret without sending it. The sender uses a fresh ephemeral key pair, so the secret changes for every message.</li>
-            <li><strong>HKDF-SHA-256:</strong> the shared secret is not used directly as a key. It is passed through a key-derivation function, which turns it into a uniform 256-bit AES key.</li>
-            <li><strong>AES-256-GCM:</strong> the message is encrypted with a symmetric cipher. GCM also adds an authentication tag, so any change to the ciphertext is detected during decryption.</li>
+            <li><strong>Exhaustive search:</strong> compute <code>G, 2G, 3G, …</code> and stop when <code>kG = Q</code>. At most <code>KEY_MAX</code> steps.</li>
+            <li><strong>Baby-step giant-step:</strong> write <code>d = i·m + j</code> with <code>m = ⌈√(range)⌉</code>. Store the baby steps <code>jG</code>,
+                then walk <code>Q − i·mG</code> and look for a match. About <code>2√(range)</code> operations instead of <code>range</code>.</li>
         </ul>
-        <p>The sender transmits: the ephemeral public key, the nonce (IV), and the ciphertext with its tag.</p>
-        <p><strong>Encryption:</strong> ephemeral pair <code>(e, eG)</code>; shared secret <code>S = e·Q<sub>B</sub></code>; AES key <code>K = HKDF(S)</code>; ciphertext <code>AES-GCM<sub>K</sub>(message)</code>.</p>
-        <p><strong>Decryption:</strong> the recipient computes <code>S = d<sub>B</sub>·(eG)</code>, which equals <code>e·Q<sub>B</sub></code>, derives the same <code>K</code>, and decrypts. If the tag does not match, decryption fails.</p>
         <p>
-            The curve here is P-256 rather than secp256k1, because the browser's WebCrypto API supports P-256 directly.
-            The security does not come from the shift or from the letters, but from the difficulty of the ECDLP and
-            from the symmetric cipher.
+            Once <code>d</code> is recovered, decryption is immediate: <code>M = C2 − d·C1</code>.
+        </p>
+        <div class="card">
+            <p><button id="toy-attack">Run the attack on the intercepted blocks</button></p>
+            <div id="toy-attack-out"></div>
+        </div>
+
+        <h3>Difference from the Caesar attack</h3>
+        <p>
+            The Caesar attack uses <strong>statistical information</strong>: the ciphertext keeps the letter distribution of the language, and
+            the attack compares distributions. It returns a likely key with a degree of confidence, and it works best with more text.
+        </p>
+        <p>
+            The toy attack uses <strong>no statistics at all</strong>. Each candidate key is checked exactly, with <code>kG = Q?</code>. The result is either correct
+            or not, with certainty. What makes it possible is the size of the key space, not any property of the output. The ciphertext
+            is not analysed at all: once <code>d</code> is known, the decryption is exact.
         </p>
     </section>
 
+    <!-- ===================================================================== -->
     <section>
-        <h2>7. Elliptic-curve encryption: encryption, decryption and attack</h2>
+        <h2>9. Why this approach fails against a properly configured ECC scheme</h2>
         <p>
-            A recipient key pair is generated in your browser when the page loads, and it is not saved anywhere.
-            The same plaintext is encrypted again with a fresh ephemeral key, so the ciphertext changes each time.
+            Exhaustive search takes time proportional to the size of the key space. A properly configured scheme uses a private key of about 256 bits,
+            so the key space has about 2<sup>256</sup> elements.
+        </p>
+        <ul>
+            <li><strong>Exhaustive search</strong> needs up to 2<sup>256</sup> group operations.</li>
+            <li><strong>Baby-step giant-step</strong> needs about 2<sup>128</sup> operations, and about as much memory to store the table. This is the bottleneck.</li>
+            <li><strong>Pollard's rho</strong> needs about 2<sup>128</sup> operations but almost no memory. It is the best known generic method for prime-order groups of this size.</li>
+        </ul>
+        <p>
+            The table below uses a rate of 10<sup>12</sup> group operations per second as an assumption. The conclusion does not depend on the exact rate.
+        </p>
+        <div id="feasibility"></div>
+        <p>
+            The toy attack works because the key range is <em>small enough to enumerate</em>. The method does not scale: each extra bit doubles the work.
+            The ECC attacks that are actually known require exponential time in the key length, which is why the ECDLP is considered intractable for well-chosen curves
+            with prime-order subgroups of about 2<sup>256</sup> elements.
+        </p>
+    </section>
+
+    <!-- ===================================================================== -->
+    <section>
+        <h2>10. Weaknesses of the toy scheme (optional)</h2>
+
+        <h3>Weaknesses that come from the restricted key space</h3>
+        <ul>
+            <li>Exhaustive search and baby-step giant-step recover <code>d</code> in a few thousand operations.</li>
+            <li>The group itself is small: the curve has only 1020 points, so the discrete logarithm is easy whatever range <code>d</code> is drawn from.
+                Restricting the range is not the only problem; the group order is too small in the first place.</li>
+        </ul>
+
+        <h3>Weaknesses that come from the design of the toy scheme</h3>
+        <ul>
+            <li><strong>No integrity:</strong> without a tag, anyone can change <code>C2</code> to <code>C2 + jG</code>, and the receiver decrypts the symbol with index <code>i + j</code>.
+                The attacker does not need the key. This is malleability, and it works like a Caesar shift applied to the plaintext symbols.</li>
+            <li><strong>Reused randomness:</strong> if the same <code>r</code> is used for two symbols, <code>C1</code> is the same, and <code>C2<sub>1</sub> − C2<sub>2</sub> = M<sub>1</sub> − M<sub>2</sub></code>
+                reveals the difference of the two symbols. Good randomness for each block is required.</li>
+            <li><strong>Small plaintext space:</strong> only 27 points are used as messages. Anyone who can test a guess about a block can check the 27 possibilities.
+                This matters only together with another weakness (for example, a known or reused <code>r</code>), but it shows that encoding each symbol as a point is not a secure encoding.</li>
+            <li><strong>No key derivation or symmetric encryption:</strong> each symbol is encrypted with its own group element. Practical schemes (such as ECIES, section 11)
+                derive a symmetric key and use an authenticated cipher.</li>
+        </ul>
+    </section>
+
+    <!-- ===================================================================== -->
+    <section>
+        <h2>11. Modern scheme for comparison: ECDH, HKDF and AES-GCM</h2>
+        <p>
+            For comparison, the page also runs a practical scheme in the browser. The sender uses a fresh ephemeral key pair, computes an ECDH shared secret with the recipient's public key,
+            derives an AES-256 key with HKDF-SHA-256, and encrypts the message with AES-GCM, which also adds an authentication tag.
+            The curve is P-256, because WebCrypto supports P-256 but not secp256k1.
         </p>
         <div class="card">
             <p><label>Plaintext:<br>
@@ -149,71 +299,67 @@
             <div id="ecc-out"></div>
             <pre id="ecc-decrypt-out" class="output"></pre>
         </div>
-
-        <h3>Attempting the same attack on the ciphertext</h3>
+        <h3>Statistics of the modern ciphertext</h3>
         <p>
-            The frequency attack from section 4 needs letters that follow the language. Below, the attack is run on the
-            ciphertext itself (its base64 text). Because the bytes are indistinguishable from random values, no shift
-            gives a plausible letter distribution, and the chi-square values stay far above the language-like values.
+            The same two tests are applied: a uniform-byte test and the letter attack on the base64 text. The Caesar attack finds no plausible key,
+            because the letters carry no structure of the plaintext.
         </p>
         <div id="ecc-stats"></div>
     </section>
 
+    <!-- ===================================================================== -->
     <section>
-        <h2>8. Statistical comparison</h2>
+        <h2>12. Similarities and differences: Caesar cipher and elliptic-curve scheme</h2>
+
+        <h3>Direct comparison: Caesar vs the toy scheme (measured)</h3>
         <p>
-            The table compares the two ciphertexts with the statistics they would have if they were what they claim to be.
-            A Caesar ciphertext keeps the shape of the language, so it is compared with the language reference. An ECC
-            ciphertext should look like uniform random bytes, so it is compared with a uniform distribution.
+            The table encrypts the same English letters with Caesar (key 7) and with the toy scheme from section 7, then applies the statistical tests.
+            For the toy scheme the attacker's view is the x-coordinate of each C2 reduced mod 26 (used as a letter), and the coordinates of C2 in 16 equal bins of the field.
         </p>
-        <div id="compare"></div>
+        <div id="toy-stats"></div>
+        <p>
+            Expected reading: the Caesar ciphertext keeps the language, so the letter test recovers the key. The toy ciphertext uses a fresh r for every letter,
+            so its letters should not match the language, and the coordinates should be consistent with uniform values. If the table shows otherwise,
+            the text of this section needs to be corrected to match the numbers.
+        </p>
+        <ul>
+            <li><strong>Encryption:</strong> Caesar uses one secret shift and no randomness. The toy scheme uses the public key Q and a fresh random r per letter.</li>
+            <li><strong>Decryption:</strong> Caesar subtracts k from each letter. The toy scheme needs the private key d, two scalar multiplications per letter, and a lookup table of 27 points.</li>
+            <li><strong>Key space:</strong> 25 keys for Caesar; about 2<sup>10</sup> private keys for the toy scheme (section 8). Both are small, so both fall to exhaustive search.</li>
+            <li><strong>Statistics:</strong> Caesar leaks the language. The toy scheme does not leak it through the letter test. Its weaknesses are structural (sections 8 and 10), not statistical.</li>
+        </ul>
+
+        <h3>Encryption and decryption</h3>
+        <ul>
+            <li><strong>Similarity:</strong> both schemes are reversible by the holder of a secret, and both apply a simple arithmetic operation
+                (addition of a shift, or addition of points on the curve).</li>
+            <li><strong>Difference:</strong> the Caesar cipher uses one key for both directions and acts on each letter independently with a fixed transformation.
+                The toy scheme uses a public key for encryption and a private key for decryption, and each block depends on a fresh random <code>r</code>.</li>
+        </ul>
+
+        <h3>Key spaces</h3>
+        <ul>
+            <li><strong>Caesar:</strong> 25 useful keys. Exhaustive search is trivial.</li>
+            <li><strong>Toy scheme:</strong> <code>KEY_MAX</code> keys, which is about 2<sup>10</sup>. Exhaustive search is feasible in milliseconds.</li>
+            <li><strong>Real ECC:</strong> about 2<sup>256</sup> keys. Exhaustive search is infeasible, and the best known generic attacks still need about 2<sup>128</sup> operations.</li>
+        </ul>
+
+        <h3>Statistical properties</h3>
+        <ul>
+            <li><strong>Caesar:</strong> the ciphertext keeps the letter distribution of the language. The statistics reveal the scheme, and the key follows from them.</li>
+            <li><strong>Modern scheme:</strong> the ciphertext bytes are close to uniform, and the letter attack finds no structure. Statistics cannot reveal the key,
+                but they also cannot prove security: a scheme can look random and still be broken by a protocol error.</li>
+        </ul>
     </section>
 
+    <!-- ===================================================================== -->
     <section>
-        <h2>9. Discussion</h2>
-
-        <h3>Why the Caesar cipher fails</h3>
+        <h2>13. Conclusion</h2>
         <p>
-            The Caesar cipher only moves each letter to another position. The statistical fingerprint of the language
-            survives, so the most frequent letters of the ciphertext correspond to the most frequent letters of the
-            language. With only 25 keys and a recognizable distribution, the key is found in a few seconds, as the
-            Caesar section above shows. Its security does not depend on any hard problem, so it offers no protection
-            once the attacker sees a few hundred letters.
-        </p>
-
-        <h3>Why the elliptic-curve ciphertext looks random</h3>
-        <p>
-            A good encryption scheme should produce output that cannot be told apart from random data without the key.
-            The AES output is designed for this: the byte values are close to uniform, and the letter distribution
-            carries no information about the plaintext. The attack therefore has nothing to work on. The statistics confirm
-            this: the byte distribution is close to uniform, and the letter attack finds no plausible key.
-        </p>
-
-        <h3>What statistics can and cannot show</h3>
-        <p>
-            The statistical tests show that the Caesar ciphertext is broken by a simple method, and that the modern
-            ciphertext does not reveal its structure to that method. They do not prove that the scheme is secure.
-            The security of the elliptic-curve part depends on the difficulty of the ECDLP, which cannot be checked by
-            looking at the output, and on the correct use of the primitives: fresh ephemeral keys for every message,
-            authentication of the ciphertext, and no reuse of nonces. A scheme can pass every statistical test and still
-            be broken by a protocol mistake.
-        </p>
-
-        <h3>Practical lesson</h3>
-        <p>
-            The Caesar cipher illustrates the principle of frequency analysis. Modern encryption exists precisely to
-            remove the statistical structure of the plaintext, and the chi-square test is one of the simplest ways to see
-            the difference between the two.
-        </p>
-    </section>
-
-    <section>
-        <h2>10. Conclusion</h2>
-        <p>
-            The Caesar cipher was broken with a simple chi-square test against the letter distribution of the language.
-            The elliptic-curve ciphertext, produced with ECDH, HKDF and AES-GCM, shows no language structure and cannot be
-            attacked this way. The comparison shows that statistics are a good tool for detecting weak encryption, but
-            they are not a proof of strong encryption.
+            The Caesar cipher is broken by a letter-frequency test, with or without a known key space, and it works well only for long texts.
+            The toy elliptic-curve scheme is correct as a mathematical construction, but its key space and its group are too small to be secure.
+            Attacking it is an exhaustive search, not a statistical one. The statistical and key-space arguments show why the parameters of a real
+            scheme must be large, and why integrity and fresh randomness are also required.
         </p>
     </section>
 
