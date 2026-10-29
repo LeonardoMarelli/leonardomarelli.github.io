@@ -173,7 +173,12 @@ export function table(headers, rows) {
   t.style.minWidth = '100%';
   t.style.fontSize = '0.8rem';
   const head = el('tr');
-  headers.forEach(h => head.appendChild(el('th', h)));
+  // Headers are static strings written in this file, so they may contain <sub> and <sup>.
+  headers.forEach(h => {
+    const th = el('th');
+    th.innerHTML = h;
+    head.appendChild(th);
+  });
   t.appendChild(head);
   rows.forEach(r => {
     const tr = el('tr');
@@ -195,9 +200,13 @@ export function renderModel(title, rows) {
   const wrap = el('div', undefined, 'output');
   wrap.appendChild(el('h3', title));
   wrap.appendChild(table(
-    ['n', 'E[Sn]', 'E[Sn] th.', 'Var[Sn]', 'Var[Sn] th.',
-     'E[Sn/n]', 'Var[Sn/n]', 'Var[Sn/n] th.', 'P(|Sn/n-mu|>0.05)', 'Chebyshev',
-     'E[Sn/√n]', 'E th.', 'Var[Sn/√n]', 'KS to N(0,1)'],
+    ['n',
+     'E[S<sub>n</sub>]', 'E[S<sub>n</sub>] theory',
+     'Var[S<sub>n</sub>]', 'Var[S<sub>n</sub>] theory',
+     'E[S<sub>n</sub>/n]', 'Var[S<sub>n</sub>/n]', 'Var[S<sub>n</sub>/n] theory',
+     'P(|S<sub>n</sub>/n − μ| &gt; 0.05)', 'Chebyshev bound',
+     'E[S<sub>n</sub>/√n]', 'E[S<sub>n</sub>/√n] theory',
+     'Var[S<sub>n</sub>/√n]', 'KS distance to N(0,1)'],
     rows.map(r => [
       r.n, f3(r.meanTotal), f3(r.meanTotalTh), f3(r.varTotal), f3(r.varTotalTh),
       f3(r.meanAvg), sci(r.varAvg), sci(r.varAvgTh), f3(r.pDev), f3(r.chebyshev),
@@ -281,7 +290,8 @@ export function run() {
     const div = el('div', undefined, 'output');
     div.appendChild(el('h3', `${md === 'bernoulli' ? `Bernoulli, p = ${p}` : 'Rademacher'}: n = ${aggN} systems per attacker`));
     div.appendChild(table(
-      ['m attackers', 'E[A]', 'E[A] th.', 'Var[A]', 'Var[A] th.', 'Var[A/(mn)]', 'Var[A/(mn)] th.'],
+      ['m attackers', 'E[A]', 'E[A] theory', 'Var[A]', 'Var[A] theory',
+       'Var[A/(mn)]', 'Var[A/(mn)] theory'],
       rows.map(r => [r.m, f3(r.meanA), f3(r.meanATh), f3(r.varA), f3(r.varATh),
         sci(r.varPerStep), sci(r.varPerStepTh)]),
     ));
