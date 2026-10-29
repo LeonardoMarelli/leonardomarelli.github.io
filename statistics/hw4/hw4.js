@@ -184,13 +184,44 @@ export function renderModel(title, rows) {
   const wrap = el('div', undefined, 'output');
   wrap.appendChild(el('h3', title));
   wrap.appendChild(table(
-    ['n', 'E[Sn]', 'E[Sn] th.', 'Var[Sn]', 'Var[Sn] th.',
-     'E[Sn/n]', 'Var[Sn/n]', 'Var[Sn/n] th.', 'P(|Sn/n-mu|>0.05)', 'Chebyshev',
-     'E[Sn/√n]', 'E th.', 'Var[Sn/√n]', 'KS to N(0,1)'],
+    [
+    'n',
+    'E[Sn]', 'E[Sn] th.',
+    'Var[Sn]', 'Var[Sn] th.',
+    'E[Sn/n]', 'E[Sn/n] th.',
+    'Var[Sn/n]', 'Var[Sn/n] th.',
+    'P(|Sn/n-mu|>0.05)', 'Chebyshev',
+    'E[Sn/√n]', 'E[Sn/√n] th.',
+    'Var[Sn/√n]', 'Var[Sn/√n] th.',
+    'KS to N(0,1)'
+],
     rows.map(r => [
-      r.n, f3(r.meanTotal), f3(r.meanTotalTh), f3(r.varTotal), f3(r.varTotalTh),
-      f3(r.meanAvg), sci(r.varAvg), sci(r.varAvgTh), f3(r.pDev), f3(r.chebyshev),
-      f3(r.meanNorm), f3(r.meanNormTh), f3(r.varNorm), f3(r.ks),
+      [
+    r.n,
+
+    f3(r.meanTotal),
+    f3(r.meanTotalTh),
+
+    f3(r.varTotal),
+    f3(r.varTotalTh),
+
+    f3(r.meanAvg),
+    f3(r.meanAvgTh),
+
+    sci(r.varAvg),
+    sci(r.varAvgTh),
+
+    f3(r.pDev),
+    f3(r.chebyshev),
+
+    f3(r.meanNorm),
+    f3(r.meanNormTh),
+
+    f3(r.varNorm),
+    f3(r.varNormTh),
+
+    f3(r.ks)
+]
     ]),
   ));
   return wrap;
