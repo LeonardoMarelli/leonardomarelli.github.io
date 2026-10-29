@@ -164,45 +164,28 @@ export function el(tag, text, cls) {
   return node;
 }
 
+// Wide tables scroll horizontally inside their box; cells never wrap, so columns stay readable.
 export function table(headers, rows) {
-    const t = el('table');
-
-    const thead = el('thead');
-    const head = el('tr');
-
-    headers.forEach(h => {
-        head.appendChild(el('th', h));
-    });
-
-    thead.appendChild(head);
-    t.appendChild(thead);
-
-    const tbody = el('tbody');
-
-    rows.forEach(row => {
-        const tr = el('tr');
-
-        // Gestisce anche un'eventuale riga racchiusa
-        // accidentalmente in un ulteriore array.
-        const cells =
-            Array.isArray(row) &&
-            row.length === 1 &&
-            Array.isArray(row[0])
-                ? row[0]
-                : row;
-
-        cells.forEach(cell => {
-            tr.appendChild(
-                el('td', cell == null ? '' : String(cell))
-            );
-        });
-
-        tbody.appendChild(tr);
-    });
-
-    t.appendChild(tbody);
-
-    return t;
+  const wrap = el('div');
+  wrap.style.overflowX = 'auto';
+  const t = el('table');
+  t.style.width = 'auto';
+  t.style.minWidth = '100%';
+  t.style.fontSize = '0.8rem';
+  const head = el('tr');
+  headers.forEach(h => head.appendChild(el('th', h)));
+  t.appendChild(head);
+  rows.forEach(r => {
+    const tr = el('tr');
+    r.forEach(cell => tr.appendChild(el('td', String(cell))));
+    t.appendChild(tr);
+  });
+  t.querySelectorAll('th, td').forEach(c => {
+    c.style.whiteSpace = 'nowrap';
+    c.style.padding = '6px 8px';
+  });
+  wrap.appendChild(t);
+  return wrap;
 }
 
 const f3 = x => (Math.abs(x) < 1e-3 && x !== 0 ? x.toExponential(2) : x.toFixed(3));
@@ -212,44 +195,13 @@ export function renderModel(title, rows) {
   const wrap = el('div', undefined, 'output');
   wrap.appendChild(el('h3', title));
   wrap.appendChild(table(
-    [
-    'n',
-    'E[Sn]', 'E[Sn] th.',
-    'Var[Sn]', 'Var[Sn] th.',
-    'E[Sn/n]', 'E[Sn/n] th.',
-    'Var[Sn/n]', 'Var[Sn/n] th.',
-    'P(deviation > 0.05)', 'Chebyshev bound',
-    'E[Sn/√n]', 'E[Sn/√n] th.',
-    'Var[Sn/√n]', 'Var[Sn/√n] th.',
-    'KS distance'
-],
+    ['n', 'E[Sn]', 'E[Sn] th.', 'Var[Sn]', 'Var[Sn] th.',
+     'E[Sn/n]', 'Var[Sn/n]', 'Var[Sn/n] th.', 'P(|Sn/n-mu|>0.05)', 'Chebyshev',
+     'E[Sn/√n]', 'E th.', 'Var[Sn/√n]', 'KS to N(0,1)'],
     rows.map(r => [
-      [
-    r.n,
-
-    f3(r.meanTotal),
-    f3(r.meanTotalTh),
-
-    f3(r.varTotal),
-    f3(r.varTotalTh),
-
-    f3(r.meanAvg),
-    f3(r.meanAvgTh),
-
-    sci(r.varAvg),
-    sci(r.varAvgTh),
-
-    f3(r.pDev),
-    f3(r.chebyshev),
-
-    f3(r.meanNorm),
-    f3(r.meanNormTh),
-
-    f3(r.varNorm),
-    f3(r.varNormTh),
-
-    f3(r.ks)
-]
+      r.n, f3(r.meanTotal), f3(r.meanTotalTh), f3(r.varTotal), f3(r.varTotalTh),
+      f3(r.meanAvg), sci(r.varAvg), sci(r.varAvgTh), f3(r.pDev), f3(r.chebyshev),
+      f3(r.meanNorm), f3(r.meanNormTh), f3(r.varNorm), f3(r.ks),
     ]),
   ));
   return wrap;
