@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HMWK 4 - Penetration Score: LLN and CLT</title>
+    <link rel="stylesheet" href="../statistics.css">
+</head>
+<body>
+<main>
+    <div class="breadcrumb"><a href="../index.html">Statistics</a> / Homework 4</div>
+
+    <h1>Penetration Score: LLN and CLT</h1>
+    <p class="description">
+        We model the score accumulated while an attacker probes a sequence of systems. By simulating many
+        independent attackers, we can compare what the theory predicts with what happens in finite samples.
+    </p>
+
+    <section>
+        <h2>1. Model</h2>
+        <p>
+            Let <em>X</em><sub>i</sub> be the score contribution at step <em>i</em>, and assume the increments are
+            independent and identically distributed (i.i.d.). The total score after <em>n</em> steps is
+            <em>S</em><sub>n</sub> = ∑<sub>i=1</sub><sup>n</sup> <em>X</em><sub>i</sub>. Each simulated trajectory
+            represents one attacker across <em>n</em> systems; the parameter <em>m</em> is the number of independent
+            trajectories used to estimate the distributions.
+        </p>
+        <ul>
+            <li><strong>Bernoulli:</strong> <em>X</em><sub>i</sub> ∈ {0, 1}, with P(<em>X</em><sub>i</sub> = 1) = <em>p</em>. Its mean is μ = <em>p</em> and its variance is σ² = <em>p</em>(1 − <em>p</em>).</li>
+            <li><strong>Rademacher:</strong> <em>X</em><sub>i</sub> ∈ {−1, +1}, each with probability 1/2. Its mean is μ = 0 and its variance is σ² = 1, so positive and negative increments balance on average.</li>
+            <li><strong>Quantities studied:</strong> the total <em>S</em><sub>n</sub>, the average <em>S</em><sub>n</sub>/<em>n</em>, and the scaled total <em>S</em><sub>n</sub>/√<em>n</em>. These use different scales to show how the score behaves as the number of systems grows.</li>
+        </ul>
+        <p class="note">
+            This is a simplified statistical model: the increments represent abstract score changes, not a realistic
+            simulation of the technical steps of a cyberattack.
+        </p>
+    </section>
+
+    <section>
+        <h2>2. Simulation</h2>
+        <p>
+            For each selected value of <em>n</em> = 10, 100, 1000, 10000, the program generates <em>m</em> independent
+            scores. It reports sample means and variances, with theoretical reference columns for most quantities. For the variance
+            of the scaled total, compare the empirical value of Var(S<sub>n</sub>/√n) with its theoretical value σ²
+            (1 for Rademacher, p(1 − p) for Bernoulli). Agreement is expected to improve with more samples, although
+            random variation remains.
+        </p>
+        <div class="card">
+            <p>
+                <label>Model:
+                    <select id="model">
+                        <option value="both">Both</option>
+                        <option value="bernoulli">Bernoulli</option>
+                        <option value="rademacher">Rademacher</option>
+                    </select>
+                </label>
+                <label>p (Bernoulli): <input id="p" type="number" step="0.05" min="0.01" max="0.99" value="0.3"></label>
+                <label>m (attackers): <input id="m" type="number" step="500" min="100" max="20000" value="2000"></label>
+                <label>Seed: <input id="seed" type="number" value="42"></label>
+                <button id="run">Run</button>
+            </p>
+            <p id="error" style="color:#a33;"></p>
+        </div>
+        <p>
+            <strong>How to read the results:</strong> columns marked “th.” are theoretical values; the other columns
+            are calculated from the simulated sample. The estimated probability
+            P(|<em>S</em><sub>n</sub>/<em>n</em> − μ| &gt; 0.05) measures how often the sample average differs from
+            its expected value by more than 0.05. Chebyshev's bound, min(1, σ²/(<em>n</em>ε²)), is a theoretical upper
+            bound on that probability, with ε = 0.05; it need not be tight.
+        </p>
+        <p>
+            The histogram compares the standardised total
+            <em>Z</em><sub>n</sub> = (<em>S</em><sub>n</sub> − <em>n</em>μ)/√(<em>n</em>σ²) with the standard normal
+            distribution N(0, 1). The KS value measures the largest difference between their cumulative distribution
+            functions. For Rademacher increments, μ = 0 and σ² = 1, so <em>Z</em><sub>n</sub> = <em>S</em><sub>n</sub>/√<em>n</em>.
+        </p>
+        <div id="results"></div>
+    </section>
+
+    <section>
+        <h2>3. Aggregate over attackers</h2>
+        <p>
+            Here we fix <em>n</em> = 100 systems per attacker and calculate
+            <em>A</em> = ∑<sub>j=1</sub><sup>m</sup> <em>S</em><sub>n</sub><sup>(j)</sup>, the combined score of all
+            <em>m</em> attackers. Since the trajectories are independent, E[<em>A</em>] = <em>mn</em>μ and
+            Var(<em>A</em>) = <em>mn</em>σ². Dividing by <em>mn</em> gives the average score per attacker-step, whose
+            variance is σ²/(<em>mn</em>). This lets us see how adding attackers affects the aggregate and its average.
+        </p>
+        <div id="aggregate"></div>
+    </section>
+
+    <section>
+        <h2>4. What the numbers show</h2>
+
+        <h3>Law of large numbers (LLN)</h3>
+        <ul>
+            <li>The average <em>S</em><sub>n</sub>/<em>n</em> concentrates around μ because its variance is σ²/<em>n</em>, which tends to zero.</li>
+            <li>For any fixed ε &gt; 0, P(|<em>S</em><sub>n</sub>/<em>n</em> − μ| &gt; ε) tends to zero. This is convergence in probability; Chebyshev's inequality gives an upper bound for the probability of a deviation.</li>
+        </ul>
+
+        <h3>Variance under each normalisation</h3>
+        <ul>
+            <li>Var(<em>S</em><sub>n</sub>) = <em>n</em>σ²: the total's variance increases with the number of steps.</li>
+            <li>Var(<em>S</em><sub>n</sub>/<em>n</em>) = σ²/<em>n</em>: the average becomes more concentrated.</li>
+            <li>Var(<em>S</em><sub>n</sub>/√<em>n</em>) = σ²: scaling by √<em>n</em> keeps the variance constant.</li>
+            <li>For Bernoulli increments, E[<em>S</em><sub>n</sub>/√<em>n</em>] = <em>p</em>√<em>n</em>, so this uncentered quantity does not approach N(0, 1). The centered and standardised sum is the appropriate quantity for the CLT.</li>
+        </ul>
+
+        <h3>Central limit theorem (CLT)</h3>
+        <ul>
+            <li>The CLT says that (<em>S</em><sub>n</sub> − <em>n</em>μ)/√(<em>n</em>σ²) converges in distribution to N(0, 1) as <em>n</em> grows, under the assumptions used here.</li>
+            <li>In the Rademacher model, μ = 0 and σ² = 1, so this becomes exactly <em>S</em><sub>n</sub>/√<em>n</em> → N(0, 1), as requested. The histogram and KS statistic give a numerical check; with finite <em>m</em>, the empirical KS value fluctuates and need not decrease at every step.</li>
+        </ul>
+
+        <h3>Systems and attackers</h3>
+        <ul>
+            <li>As <em>n</em> increases, the average score becomes more predictable in both models. In the Bernoulli model the total has mean <em>np</em>; in the Rademacher model its mean stays zero, while its standard deviation grows like √<em>n</em>.</li>
+            <li>For fixed <em>n</em>, adding independent attackers multiplies the aggregate mean by <em>m</em> and its variance by <em>m</em>. The average over all <em>mn</em> attacker-steps has variance σ²/(<em>mn</em>), so it becomes more concentrated as attackers are added.</li>
+            <li>A single attacker's raw total can remain variable even when <em>n</em> is large; the law of large numbers guarantees stability of the per-step average, not of every rescaled quantity.</li>
+        </ul>
+    </section>
+
+    <footer>HMWK 4 - Statistics</footer>
+</main>
+
+<script type="module" src="hw4.js"></script>
+</body>
+</html>
