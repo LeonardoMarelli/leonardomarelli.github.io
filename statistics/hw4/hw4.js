@@ -165,16 +165,44 @@ export function el(tag, text, cls) {
 }
 
 export function table(headers, rows) {
-  const t = el('table');
-  const head = el('tr');
-  headers.forEach(h => head.appendChild(el('th', h)));
-  t.appendChild(head);
-  rows.forEach(r => {
-    const tr = el('tr');
-    r.forEach(cell => tr.appendChild(el('td', String(cell))));
-    t.appendChild(tr);
-  });
-  return t;
+    const t = el('table');
+
+    const thead = el('thead');
+    const head = el('tr');
+
+    headers.forEach(h => {
+        head.appendChild(el('th', h));
+    });
+
+    thead.appendChild(head);
+    t.appendChild(thead);
+
+    const tbody = el('tbody');
+
+    rows.forEach(row => {
+        const tr = el('tr');
+
+        // Gestisce anche un'eventuale riga racchiusa
+        // accidentalmente in un ulteriore array.
+        const cells =
+            Array.isArray(row) &&
+            row.length === 1 &&
+            Array.isArray(row[0])
+                ? row[0]
+                : row;
+
+        cells.forEach(cell => {
+            tr.appendChild(
+                el('td', cell == null ? '' : String(cell))
+            );
+        });
+
+        tbody.appendChild(tr);
+    });
+
+    t.appendChild(tbody);
+
+    return t;
 }
 
 const f3 = x => (Math.abs(x) < 1e-3 && x !== 0 ? x.toExponential(2) : x.toFixed(3));
@@ -190,10 +218,10 @@ export function renderModel(title, rows) {
     'Var[Sn]', 'Var[Sn] th.',
     'E[Sn/n]', 'E[Sn/n] th.',
     'Var[Sn/n]', 'Var[Sn/n] th.',
-    'P(|Sn/n-mu|>0.05)', 'Chebyshev',
+    'P(deviation > 0.05)', 'Chebyshev bound',
     'E[Sn/√n]', 'E[Sn/√n] th.',
     'Var[Sn/√n]', 'Var[Sn/√n] th.',
-    'KS to N(0,1)'
+    'KS distance'
 ],
     rows.map(r => [
       [

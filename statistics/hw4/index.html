@@ -5,6 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HMWK 4 - Penetration Score: LLN and CLT</title>
     <link rel="stylesheet" href="../statistics.css">
+    <style>
+        /* Keep the numerical output tables readable even if the shared stylesheet
+           applies compact or mobile-specific table rules. */
+        #results .output, #aggregate .output {
+            display: block !important;
+            width: 100% !important;
+            max-width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            overflow-x: auto;
+        }
+        #results table, #aggregate table {
+            display: table !important;
+            width: max-content !important;
+            min-width: 100%;
+            table-layout: auto !important;
+            border-collapse: collapse;
+            font-variant-numeric: tabular-nums;
+        }
+        #results thead, #aggregate thead { display: table-header-group !important; }
+        #results tbody, #aggregate tbody { display: table-row-group !important; }
+        #results tr, #aggregate tr { display: table-row !important; }
+        #results th, #results td, #aggregate th, #aggregate td {
+            display: table-cell !important;
+            padding: 0.6rem 0.75rem;
+            border-bottom: 1px solid #d5dde6;
+            text-align: right;
+            vertical-align: top;
+        }
+        #results th, #aggregate th {
+            min-width: 5.5rem;
+            max-width: 10rem;
+            white-space: normal;
+            overflow-wrap: normal;
+            word-break: normal;
+            hyphens: none;
+            font-size: 0.85rem;
+        }
+        #results td, #aggregate td { white-space: nowrap; }
+    </style>
 </head>
 <body>
 <main>
