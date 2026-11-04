@@ -21,11 +21,98 @@
         <p>M<sub>n</sub> = M<sub>n−1</sub> + (x<sub>n</sub> − M<sub>n−1</sub>)/n</p>
 
         <h3>Sum of squares</h3>
-        <p>
-            With SS<sub>n</sub> = Σ<sub>i≤n</sub>(x<sub>i</sub> − M<sub>n</sub>)² and δ = x<sub>n</sub> − M<sub>n−1</sub>,
-            split the sum at n−1. The cross term vanishes because Σ<sub>i&lt;n</sub>(x<sub>i</sub> − M<sub>n−1</sub>) = 0.
-        </p>
-        <p>SS<sub>n</sub> = SS<sub>n−1</sub> + (x<sub>n</sub> − M<sub>n−1</sub>)(x<sub>n</sub> − M<sub>n</sub>)</p>
+
+            <p>
+                We define the sum of squared deviations from the current mean as:
+            </p>
+
+            <p>
+                SS<sub>n</sub> = &sum;<sub>i=1</sub><sup>n</sup>(x<sub>i</sub> − M<sub>n</sub>)²
+            </p>
+
+            <p>
+                Let &delta; = x<sub>n</sub> − M<sub>n−1</sub>.
+                From Knuth's recurrence formula for the mean:
+            </p>
+
+            <p>
+                M<sub>n</sub> = M<sub>n−1</sub> + &delta;/n
+            </p>
+
+            <p>
+                For the previous n−1 observations, we can write:
+            </p>
+
+            <p>
+                x<sub>i</sub> − M<sub>n</sub> =
+                (x<sub>i</sub> − M<sub>n−1</sub>) − &delta;/n
+            </p>
+
+            <p>
+                For the new observation:
+            </p>
+
+            <p>
+                x<sub>n</sub> − M<sub>n</sub> =
+                &delta; − &delta;/n = (n−1)&delta;/n
+            </p>
+
+            <p>
+                Substituting these expressions into the definition of SS:
+            </p>
+
+            <p>
+                SS<sub>n</sub> =
+                &sum;<sub>i=1</sub><sup>n−1</sup>
+                [(x<sub>i</sub> − M<sub>n−1</sub>) − &delta;/n]²
+                + [(n−1)&delta;/n]²
+            </p>
+
+            <p>
+                Expanding the square:
+            </p>
+
+            <p>
+                SS<sub>n</sub> =
+                SS<sub>n−1</sub>
+                − (2&delta;/n)&sum;<sub>i=1</sub><sup>n−1</sup>
+                (x<sub>i</sub> − M<sub>n−1</sub>)
+                + (n−1)&delta;²/n²
+                + (n−1)²&delta;²/n²
+            </p>
+
+            <p>
+                The cross term vanishes because the deviations from the previous
+                mean sum to zero:
+            </p>
+
+            <p>
+                &sum;<sub>i=1</sub><sup>n−1</sup>
+                (x<sub>i</sub> − M<sub>n−1</sub>) = 0
+            </p>
+
+            <p>
+                Therefore, simplifying:
+            </p>
+
+            <p>
+                SS<sub>n</sub> =
+                SS<sub>n−1</sub> + (n−1)&delta;²/n
+            </p>
+
+            <p>
+                Since x<sub>n</sub> − M<sub>n</sub> = (n−1)&delta;/n,
+                we obtain the final recurrence formula:
+            </p>
+
+            <p>
+                <strong>
+                    SS<sub>n</sub> =
+                    SS<sub>n−1</sub> +
+                    (x<sub>n</sub> − M<sub>n−1</sub>)
+                    (x<sub>n</sub> − M<sub>n</sub>)
+                </strong>
+            </p>
 
         <h3>Variance</h3>
         <p>s<sub>n</sub>² = SS<sub>n</sub>/(n−1) = ((n−2)/(n−1)) s<sub>n−1</sub>² + δ²/n, for n ≥ 3.</p>
