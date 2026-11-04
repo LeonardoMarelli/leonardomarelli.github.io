@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HMWK 5 - Welford and Sampling Moments</title>
+    <link rel="stylesheet" href="../statistics.css">
+</head>
+<body>
+<main>
+    <div class="breadcrumb"><a href="../index.html">Statistics</a> / Homework 5</div>
+
+    <h1>Welford's Recurrence and Sampling Moments</h1>
+    <p class="description">
+        Online sampling mean and variance of penetration scores, one hacker at a time.
+    </p>
+
+    <section>
+        <h2>1. Welford's recurrence formulas</h2>
+        <h3>Mean (Knuth)</h3>
+        <p>M<sub>n</sub> = M<sub>n−1</sub> + (x<sub>n</sub> − M<sub>n−1</sub>)/n</p>
+
+        <h3>Sum of squares</h3>
+        <p>
+            With SS<sub>n</sub> = Σ<sub>i≤n</sub>(x<sub>i</sub> − M<sub>n</sub>)² and δ = x<sub>n</sub> − M<sub>n−1</sub>,
+            split the sum at n−1. The cross term vanishes because Σ<sub>i&lt;n</sub>(x<sub>i</sub> − M<sub>n−1</sub>) = 0.
+        </p>
+        <p>SS<sub>n</sub> = SS<sub>n−1</sub> + (x<sub>n</sub> − M<sub>n−1</sub>)(x<sub>n</sub> − M<sub>n</sub>)</p>
+
+        <h3>Variance</h3>
+        <p>s<sub>n</sub>² = SS<sub>n</sub>/(n−1) = ((n−2)/(n−1)) s<sub>n−1</sub>² + δ²/n, for n ≥ 3.</p>
+    </section>
+
+    <section>
+        <h2>2. Code</h2>
+        <pre><code>export function welford(st, x) {
+  st.n += 1;
+  const d = x - st.mean;       // δ = x_n − M_{n−1}
+  st.mean += d / st.n;         // M_n
+  st.S += d * (x - st.mean);   // SS_n = SS_{n−1} + δ(x_n − M_n)
+  return st;
+}</code></pre>
+        <p>The core logic is the three lines of the update. The counter and the return value are bookkeeping.</p>
+    </section>
+
+    <section>
+        <h2>3. Experiment</h2>
+        <p>
+            Scores X ~ Binomial(10, 0.3), so μ = 3 and σ² = 2.1. Each of the m hackers attempts n systems, and
+            Welford's formulas give that hacker's sampling mean x̄<sub>j</sub> and sampling variance s<sub>j</sub>².
+            The table averages these across hackers and compares them with μ and σ².
+        </p>
+        <div class="card">
+            <p>
+                <label>m (hackers): <input id="m" type="number" step="500" min="100" max="20000" value="2000"></label>
+                <label>Seed: <input id="seed" type="number" value="42"></label>
+                <button id="run">Run</button>
+            </p>
+            <p id="error" style="color:#a33;"></p>
+        </div>
+        <div id="results"></div>
+        <p id="check"></p>
+    </section>
+
+    <section>
+        <h2>4. What the numbers show</h2>
+
+        <h3>Comparison with μ and σ²</h3>
+        <ul>
+            <li>The average of the sample means matches μ = 3 at every n. The average of the sample variances matches σ² = 2.1 at every n.</li>
+            <li>Both estimators are unbiased: E[x̄] = μ, and E[s²] = σ² because of the 1/(n−1) divisor. Small gaps are simulation noise, of order sd/√m.</li>
+        </ul>
+
+        <h3>Effect of n on variability</h3>
+        <ul>
+            <li>Var(x̄) = σ²/n. The spread of sample means shrinks like 1/√n. Going from n = 5 to n = 1000 reduces it by a factor of about 14.</li>
+            <li>Var(s²) = (μ<sub>4</sub> − σ⁴(n−3)/(n−1))/n also falls like 1/n, but with a larger constant. Here μ<sub>4</sub> ≈ 12.68 and σ⁴ = 4.41, so Var(s²) ≈ 8.3/n, about four times Var(x̄) ≈ 2.1/n. Sample variances are therefore much noisier than sample means at the same n.</li>
+        </ul>
+
+        <h3>Relevance to inferential statistics</h3>
+        <ul>
+            <li><strong>Unbiasedness:</strong> the sample statistics estimate μ and σ² with no systematic error, so a single hacker's values are meaningful estimates.</li>
+            <li><strong>Precision:</strong> both variances tend to 0 as n grows, so the estimates concentrate around the true values (law of large numbers).</li>
+            <li><strong>Standard error:</strong> sd(x̄) = σ/√n. Replacing σ with s gives s/√n, which is the basis for confidence intervals and t-tests. The CLT justifies the approximation for large n.</li>
+            <li><strong>Welford's method:</strong> it processes the data in one pass with no stored trajectory, and it is numerically stable, which suits attempts that arrive one at a time.</li>
+        </ul>
+    </section>
+
+    <footer>HMWK 5 - Statistics</footer>
+</main>
+
+<script type="module" src="hw5.js"></script>
+</body>
+</html>
