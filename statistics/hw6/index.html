@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HMWK 6 - Riemann, Lebesgue and the Normal CDF</title>
+    <link rel="stylesheet" href="../statistics.css">
+</head>
+<body>
+<main>
+    <div class="breadcrumb"><a href="../index.html">Statistics</a> / Homework 6</div>
+
+    <h1>Riemann vs Lebesgue, and the Normal CDF</h1>
+    <p class="description">
+        Numerical integration in two ways, and numerical evaluation of the standard normal CDF.
+    </p>
+
+    <section>
+        <h2>1. Riemann and Lebesgue integration</h2>
+        <h3>Problem</h3>
+        <p>
+            Approximate ∫f numerically in two ways: by partitioning the domain (Riemann) and by partitioning
+            the range of values (Lebesgue). Compare accuracy, convergence and cost, and identify where the two
+            approaches agree and where they do not.
+        </p>
+
+        <h3>Riemann (domain partition)</h3>
+        <ul>
+            <li>Split [a,b] into N subintervals I<sub>i</sub> of length h = (b − a)/N.</li>
+            <li>
+                Darboux sums: U<sub>N</sub> = Σ sup<sub>I<sub>i</sub></sub> f · h and L<sub>N</sub> = Σ inf<sub>I<sub>i</sub></sub> f · h.
+                f is Riemann integrable iff U<sub>N</sub> − L<sub>N</sub> → 0, and the integral is the common limit.
+            </li>
+            <li>
+                For regular functions, sup and inf are estimated from M+1 equally spaced samples per subinterval
+                (M even). The centre sample is reused for the midpoint sum Σ f(mid<sub>i</sub>) · h, so the total
+                cost is N(M+1) evaluations of f.
+            </li>
+            <li>
+                For 1/√x the sup and inf come from an exact oracle, because sampling cannot see the singularity.
+                The sup on the first subinterval is +∞. On [i/N, (i+1)/N] the inf is f((i+1)/N), since f is decreasing.
+                The midpoint sum is kept as the numerical approximation of the improper integral.
+            </li>
+        </ul>
+
+        <h3>Lebesgue (range partition)</h3>
+        <ul>
+            <li>
+                For f ≥ 0, ∫f dμ = ∫<sub>0</sub><sup>∞</sup> μ{f &gt; t} dt (layer-cake formula).
+                The t-integral is discretised with the midpoint rule and step δ.
+            </li>
+            <li>
+                When a level-set formula is known (1/√x, Dirichlet, Thomae), μ{f &gt; t} is exact.
+                Otherwise it is estimated on NL midpoints of the domain as μ ≈ (b − a) · #{f &gt; t}/NL.
+                Values are sorted once, and each level costs one binary search.
+            </li>
+            <li>
+                The step δ is chosen as δ = 1/K with K ≈ 10√N. With δ = 1/K, the jump levels t = 1 and t = 3 of the
+                step functions lie on grid boundaries. The value of δ is shown in Table B.
+            </li>
+            <li>
+                For 1/√x the t-integral is truncated at T = 100. The exact level measure μ{f &gt; t} = min(1, 1/t²)
+                gives the tail ∫<sub>100</sub><sup>∞</sup> t<sup>−2</sup> dt = 0.01, which is added analytically.
+            </li>
+        </ul>
+
+        <h3>Functions</h3>
+        <p>
+            The seven functions of the homework, plus the Dirichlet function and Thomae's function.
+            All test functions are non-negative on their domain, as the layer-cake formula requires.
+        </p>
+
+        <h3>Pathological functions</h3>
+        <p>
+            A floating-point number is a dyadic rational, so a computer cannot distinguish rational from irrational
+            points. Sampling Dirichlet's function on a grid returns 1 everywhere, which is wrong.
+            For Dirichlet and Thomae the code therefore uses exact oracles: the exact sup and inf on each interval,
+            and the exact level measures. For Thomae, the sup on [i/N, (i+1)/N] is 1/q, where q is the
+            smallest denominator of a fraction lying in that interval. The values for these two functions are
+            theoretical, not sampled.
+        </p>
+    </section>
+
+    <section>
+        <h2>2. Ex.1 results</h2>
+        <div class="card">
+            <p><button id="run">Run both experiments</button></p>
+        </div>
+        <p>
+            Table A compares the two methods at equal cost: N = 1000 with M = 20 gives 21 000 evaluations of f for
+            Riemann, and NL = 21 000 samples for Lebesgue. Timings are medians of repeated runs after a warm-up, and
+            depend on the browser and the machine. Table B shows |error| for Riemann and Lebesgue as the resolution
+            grows (N = NL), with the Lebesgue step δ written in each column header. Table C shows the Darboux sums
+            of the pathological functions.
+        </p>
+        <div id="ex1"></div>
+    </section>
+
+    <section>
+        <h2>3. Ex.1 discussion</h2>
+
+        <h3>Same value when both apply</h3>
+        <ul>
+            <li>
+                For the bounded regular functions (sin x, x², the two step functions, |x − ½|, sin x / x) both
+                approaches converge to the same value. The differences in tables A and B are discretisation errors,
+                not disagreement between the methods.
+            </li>
+            <li>
+                Lebesgue's criterion: a bounded f is Riemann integrable iff its set of discontinuities has measure zero.
+                In that case the Riemann integral equals the Lebesgue integral.
+            </li>
+        </ul>
+
+        <h3>Accuracy and convergence</h3>
+        <ul>
+            <li>
+                <strong>Riemann, smooth f:</strong> the midpoint error is of order N<sup>−2</sup>, with constant
+                proportional to f″.
+            </li>
+            <li>
+                <strong>Riemann, jump:</strong> if the jump does not lie on a grid boundary, the cell containing it is
+                misclassified and the error is of order N<sup>−1</sup>. If the jump lies on a boundary, as for the
+                step functions here (jump at ½, N even), the midpoint sum is exact and no N<sup>−1</sup> error appears.
+            </li>
+            <li>
+                <strong>Riemann, 1/√x:</strong> the first cell contributes an error of about (2 − √2)√h, so the midpoint
+                error is of order N<sup>−1/2</sup>.
+            </li>
+            <li>
+                <strong>Lebesgue, t-integral:</strong> the midpoint rule has error O(δ²) when μ{f &gt; t} is C² in t,
+                and error O(δ) in the presence of a jump in μ that is not aligned with the grid. For the step functions,
+                the jump levels are aligned with δ = 1/K, so the O(δ²) behaviour holds on the smooth parts.
+            </li>
+            <li>
+                <strong>Lebesgue, sampled μ:</strong> for the functions of this experiment, each level has error O(1/NL)
+                from the sampling of μ, which integrates to O(1/NL) over t.
+            </li>
+            <li>
+                <strong>Lebesgue, 1/√x:</strong> μ is exact, so the only errors are the midpoint error in t and the
+                tail, which is added analytically. The result does not depend on N.
+            </li>
+        </ul>
+
+        <h3>Efficiency</h3>
+        <ul>
+            <li>
+                Riemann: N(M+1) evaluations of f, plus the sorting-free Darboux sums. For bounded one-dimensional f,
+                this is usually the cheaper method.
+            </li>
+            <li>
+                Lebesgue: NL evaluations, O(NL log NL) sorting, and one binary search per level. Its advantage lies
+                in what it can integrate, not in speed on these examples. Table A's timings let you check this.
+            </li>
+        </ul>
+
+        <h3>Where the two approaches behave differently</h3>
+        <ul>
+            <li>
+                <strong>Dirichlet:</strong> U<sub>N</sub> = 1 and L<sub>N</sub> = 0 for every N, so the gap never closes
+                and f is not Riemann integrable. Lebesgue gives 0, because {f &gt; t} = ℚ ∩ [0,1] has measure zero for t &gt; 0.
+            </li>
+            <li>
+                <strong>Thomae:</strong> Riemann integrable, since its discontinuities lie on the rationals, a null set.
+                The integral is 0. U<sub>N</sub> tends to 0 while L<sub>N</sub> = 0, so both approaches agree.
+                Sampling would miss the structure of the function entirely.
+            </li>
+            <li>
+                <strong>1/√x:</strong> the Riemann integral is improper, because f is unbounded near 0. The Darboux sums
+                therefore show U<sub>N</sub> = +∞ for every N, and only the midpoint sums converge, slowly. Lebesgue
+                handles the function directly, since μ{f &gt; t} = min(1, 1/t²).
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>4. Ex.2 – Numerical computation of the normal CDF</h2>
+
+        <h3>Problem</h3>
+        <p>
+            Develop an efficient method for Φ(x) = ∫₋∞^x φ(t) dt, where φ(t) = e<sup>−t²/2</sup>/√(2π), implement it,
+            and compare it with trusted reference values.
+        </p>
+
+        <h3>Why there is no elementary antiderivative</h3>
+        <p>
+            Liouville's theorem (1835) restricts the form an elementary antiderivative can take. Applied to
+            f(x) = e<sup>−x²/2</sup>, it gives the following consequence: if ∫f were elementary, there would be a
+            rational function R(x) with
+        </p>
+        <p style="text-align:center;">∫ e<sup>−x²/2</sup> dx = e<sup>−x²/2</sup> R(x) + C.</p>
+        <p>
+            Differentiating the right-hand side gives e<sup>−x²/2</sup>(R′(x) − xR(x)), so the condition becomes
+        </p>
+        <p style="text-align:center;">R′(x) − xR(x) = 1.&emsp;(∗)</p>
+        <p>No rational function R satisfies (∗):</p>
+        <ul>
+            <li>
+                <strong>R has no poles.</strong> Suppose R has a pole of order k ≥ 1 at a. Then R′ has a pole of order k+1
+                at a, while xR has a pole of order at most k there. The term R′ cannot be cancelled, so the left side of (∗)
+                has a pole at a. The right side, 1, has none. Hence R has no poles, so R is a polynomial.
+            </li>
+            <li>
+                <strong>R is not a polynomial.</strong> Let R be a polynomial of degree n ≥ 0 with leading coefficient a ≠ 0.
+                Then R′ has degree at most n−1, while xR has degree exactly n+1. So R′ − xR has degree n+1 ≥ 1 and
+                cannot equal the constant 1. If R = 0, the left side is 0 ≠ 1.
+            </li>
+        </ul>
+        <p>
+            The contradiction shows that ∫e<sup>−x²/2</sup> dx has no elementary antiderivative, and so Φ is not
+            elementary. The Risch algorithm (1968) makes this kind of test mechanical, but the argument above is enough here.
+        </p>
+
+        <h3>The role of erf</h3>
+        <p>
+            Φ(x) = ½(1 + erf(x/√2)), where erf(z) = (2/√π)∫₀^z e<sup>−t²</sup> dt. This is an exact analytical
+            representation. But erf is itself non-elementary, so evaluating it at a point still requires numerics:
+            truncated series with error control, continued fractions, or rational approximations.
+        </p>
+
+        <h3>Numerical approaches implemented</h3>
+        <ol>
+            <li><strong>Trapezoid rule</strong> on [0,|x|], N = 1000. Error O(N<sup>−2</sup>).</li>
+            <li><strong>Simpson's rule</strong> on [0,|x|], N = 200. Error O(N<sup>−4</sup>).</li>
+            <li>
+                <strong>Power series</strong>: Φ(x) = ½ + φ(x) Σ<sub>n≥0</sub> x<sup>2n+1</sup>/(1·3·…·(2n+1)).
+                The series converges for every x in exact arithmetic, and its terms grow like x² before decaying.
+                <em>Stability:</em> for moderate |x| (up to about 8) the implementation is accurate in absolute terms.
+                For x negative and large in modulus, ½ + φ(x)S(x) subtracts two nearly equal quantities. The absolute
+                error stays near machine precision, but the relative accuracy of the left tail is lost. For very large
+                |x| the intermediate terms overflow, so the direct series is only suitable for moderate arguments and
+                the hybrid method is preferred in the tails.
+            </li>
+            <li>
+                <strong>erf hybrid</strong>: Kummer's series for erf when z = |x|/√2 &lt; 2, and Laplace's continued
+                fraction for erfc when z ≥ 2 (fixed depth 100). The survival function
+                Q(x) = P(Z &gt; x) = ½ erfc(x/√2) is computed directly, and Φ(x) = 1 − Q(x) for x ≥ 0, Φ(x) = Q(|x|) for x &lt; 0.
+                <em>Limitation:</em> for x ≥ 0, computing Φ(x) as 1 − Q(x) rounds to 1 once Q(x) is smaller than about
+                10<sup>−16</sup>, so the relative precision of the upper tail is lost. Using Q(x) directly avoids this
+                loss, and Table D shows the difference.
+            </li>
+            <li>
+                <strong>Polynomial approximation</strong> (Abramowitz–Stegun 26.2.17): O(1) cost, absolute error below
+                7.5·10<sup>−8</sup>. It is not reliable for tail probabilities of order 10<sup>−9</sup>, such as p-values.
+            </li>
+        </ol>
+
+        <h3>Reference values</h3>
+        <ul>
+            <li>
+                The values of Φ in the array REF are the standard tabulated values (Abramowitz &amp; Stegun,
+                <em>Handbook of Mathematical Functions</em>, Table 26.1). They follow from Φ(x) = ½ erfc(−x/√2),
+                DLMF §7.2 (<a href="https://dlmf.nist.gov/7.2">dlmf.nist.gov/7.2</a>). Before final submission,
+                compare them with R's <code>pnorm</code> (<a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Normal.html">R stats documentation</a>)
+                or SciPy's <code>norm.cdf</code> (<a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html">scipy.stats.norm</a>).
+            </li>
+            <li>
+                The upper-tail reference values in Table D are Q(x) = P(Z &gt; x), taken from the same DLMF relation.
+            </li>
+            <li>
+                General reference: DLMF chapter 7 on error functions, <a href="https://dlmf.nist.gov/7">dlmf.nist.gov/7</a>.
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>5. Ex.2 results</h2>
+        <p>
+            Table A gives the error of each method at the 13 reference points. Table B gives the maximum error over
+            those same reference points, together with the median time for 10<sup>4</sup> evaluations on [−8, 8].
+            Every method is evaluated at the same 10<sup>4</sup> points. Table C shows the convergence of the quadrature
+            rules at x = 2. Table D compares the upper tail Q(x) computed as 1 − Φ(x) with the direct survival function.
+            The symmetry check verifies Φ(x) + Φ(−x) = 1 on the same grid.
+        </p>
+        <div id="ex2"></div>
+    </section>
+
+    <section>
+        <h2>6. Ex.2 discussion</h2>
+        <ul>
+            <li>
+                <strong>Quadrature:</strong> the trapezoid error falls as N<sup>−2</sup> and Simpson's as N<sup>−4</sup>, so
+                Table C should show Simpson's error dropping much faster per decade of N. Both are accurate but need
+                many evaluations of φ.
+            </li>
+            <li>
+                <strong>Power series:</strong> accurate in absolute terms for moderate |x|. Its cost grows with |x|,
+                and in the left tail it loses relative accuracy because of cancellation. It is a natural choice for
+                moderate arguments only.
+            </li>
+            <li>
+                <strong>erf hybrid:</strong> it uses the series near the centre and the continued fraction in the tails.
+                The survival function keeps relative accuracy in both tails at fixed cost, which matters for small
+                tail probabilities.
+            </li>
+            <li>
+                <strong>Polynomial approximation:</strong> the fastest, but its error is bounded in absolute terms only.
+            </li>
+            <li>
+                <strong>Production libraries</strong> use minimax rational approximations, such as Cody's rational
+                Chebyshev approximations, which are used in R's <code>pnorm</code>. These combine a low cost with
+                near-machine accuracy.
+            </li>
+        </ul>
+    </section>
+
+    <footer>HMWK 6 - Statistics</footer>
+</main>
+
+<script type="module" src="hw6.js"></script>
+</body>
+</html>
