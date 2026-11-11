@@ -358,7 +358,6 @@ export function runAll() {
 export function init() {
   if (!$('run')) return;
   $('run').addEventListener('click', runAll);
-  runAll();
 }
 
 if (typeof document !== 'undefined') {
