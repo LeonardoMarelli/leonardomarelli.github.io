@@ -13,17 +13,17 @@ export function mulberry32(seed) {
   };
 }
 
-// Real data: Titanic (2201 people, R's built-in Titanic table). X = travel class, F = outcome.
-const TITANIC_COUNTS = {
-  'Crew': { Survived: 212, Died: 673 },
-  '1st': { Survived: 202, Died: 123 },
-  '2nd': { Survived: 118, Died: 167 },
-  '3rd': { Survived: 178, Died: 528 },
+// Real data: hair colour (X) vs eye colour (F) of 592 students (R's built-in HairEyeColor, summed over sex).
+const HAIR_EYE_COUNTS = {
+  'Black': { Brown: 68, Blue: 20, Hazel: 15, Green: 5 },
+  'Brown': { Brown: 119, Blue: 84, Hazel: 54, Green: 29 },
+  'Red':   { Brown: 26, Blue: 17, Hazel: 14, Green: 14 },
+  'Blond': { Brown: 7, Blue: 94, Hazel: 10, Green: 16 },
 };
 
-export function titanicPairs() {
+export function hairEyePairs() {
   const pairs = [];
-  for (const [x, row] of Object.entries(TITANIC_COUNTS))
+  for (const [x, row] of Object.entries(HAIR_EYE_COUNTS))
     for (const [f, c] of Object.entries(row))
       for (let i = 0; i < c; i++) pairs.push([x, f]);
   return pairs;
@@ -45,7 +45,7 @@ export function independentPairs(seed = 7) {
 }
 
 const DATASETS = {
-  titanic: { name: 'Titanic: travel class (X) vs outcome (F)', xName: 'Class', fName: 'Outcome', pairs: titanicPairs },
+  hair: { name: 'Hair colour (X) vs eye colour (F), 592 students', xName: 'Hair', fName: 'Eyes', pairs: hairEyePairs },
   indep: { name: 'Simulated: operating system (X) vs breach (F), independent by construction',
     xName: 'OS', fName: 'Breach', pairs: () => independentPairs(7) },
 };

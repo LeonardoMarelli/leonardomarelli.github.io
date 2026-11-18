@@ -51,16 +51,18 @@
     <section>
         <h2>3. Datasets and results</h2>
         <p>
-            Two datasets are used. <strong>Titanic</strong> is real data (2201 people: travel class vs survival, counts of R's built-in
-            <code>Titanic</code> table, summed over sex and age). <strong>Simulated</strong> data (N = 600: operating system vs breach) are
-            drawn with seed 7 from two independent distributions, so independence holds by construction and the test can be checked on a known case.
+            Two datasets are used. <strong>Hair and eye colour</strong> is real data: 592 students classified by hair colour
+            (black, brown, red, blond) and eye colour (brown, blue, hazel, green), the counts of R's built-in
+            <code>HairEyeColor</code> table summed over sex. <strong>Simulated</strong> data (N = 600: operating system vs breach)
+            are drawn with seed 7 from two independent distributions, so independence holds by construction and the test can be
+            checked on a known case.
         </p>
         <div class="card">
             <p>
                 <label>Dataset:
                     <select id="dataset">
                         <option value="both">Both</option>
-                        <option value="titanic">Titanic</option>
+                        <option value="hair">Hair and eye colour</option>
                         <option value="indep">Simulated (independent)</option>
                     </select>
                 </label>
@@ -74,11 +76,19 @@
     <section>
         <h2>4. Interpretation</h2>
 
-        <h3>Titanic: dependence</h3>
+        <h3>Hair and eye colour: dependence</h3>
         <ul>
-            <li>χ² ≈ 187.8 with df = 3 gives p ≈ 10<sup>−40</sup>: we reject independence. Survival depends on travel class.</li>
-            <li>The conditional frequencies show how: the survival rate is about 62% in 1st class, 41% in 2nd, 25% in 3rd and 24% for the crew, against 32% overall. Under independence all rows would equal 32%.</li>
-            <li>Cramér's V ≈ 0.29 indicates a moderate association, not just a statistically detectable one. All E<sub>ij</sub> are above 90, so the χ² approximation is reliable.</li>
+            <li>χ² ≈ 138.3 with df = 9 gives p ≈ 10<sup>−25</sup>: we reject independence. Hair colour and eye colour are statistically dependent.</li>
+            <li>
+                The conditional frequencies show how. Among blond students 74% have blue eyes, against 36% overall; among black-haired
+                students 63% have brown eyes, against 37% overall. Under independence every row would equal the marginal row
+                (37% brown, 36% blue, 16% hazel, 11% green).
+            </li>
+            <li>
+                The largest contributions to χ² come from blond with blue eyes (94 observed, about 46 expected) and blond with brown eyes
+                (7 observed, about 47 expected), then black hair with brown eyes (68 observed, about 40 expected).
+            </li>
+            <li>Cramér's V ≈ 0.28 indicates a moderate association. All E<sub>ij</sub> are at least 7.7, so the χ² approximation is acceptable.</li>
         </ul>
 
         <h3>Simulated: compatible with independence</h3>
@@ -90,8 +100,9 @@
         <h3>Association is not causation</h3>
         <ul>
             <li>The χ² test only says that the variables are statistically associated. It says nothing about why.</li>
-            <li>On the Titanic, class is plausibly linked to survival through access to lifeboats and the position of the cabins, but the table alone cannot show this. Other variables (sex, age, deck location, the rescue policy "women and children first") are mixed with class and may explain part of the association (confounding).</li>
-            <li>The association is also symmetric: the test treats X and F the same way, so it gives no direction of influence. Establishing causality requires a randomised experiment or an explicit causal model, plus control of confounders.</li>
+            <li>Hair colour does not cause eye colour, nor the reverse. The association is plausibly due to common background factors, such as ancestry and the genes that control pigmentation, which affect both traits. This is an example of a common cause (confounding).</li>
+            <li>The sample is also a particular group of students, so the result describes that group. It does not automatically extend to other populations.</li>
+            <li>The association is symmetric: the test treats X and F the same way, so it gives no direction of influence. Establishing causality requires a randomised experiment or an explicit causal model, plus control of confounders.</li>
         </ul>
     </section>
 
