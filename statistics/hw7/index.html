@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HMWK 7 - Statistical Independence</title>
+    <link rel="stylesheet" href="../statistics.css">
+</head>
+<body>
+<main>
+    <div class="breadcrumb"><a href="../index.html">Statistics</a> / Homework 7</div>
+
+    <h1>Statistical Independence: Contingency Table and χ² Test</h1>
+    <p class="description">
+        Contingency table, marginal and conditional frequencies, expected counts under independence, χ² statistic and p-value.
+    </p>
+
+    <section>
+        <h2>1. Problem and method</h2>
+        <p>
+            Given a bivariate dataset of pairs (x<sub>k</sub>, f<sub>k</sub>), k = 1..N, we ask whether the two variables
+            are independent. The program works in these steps:
+        </p>
+        <ol>
+            <li><strong>Contingency table:</strong> n<sub>ij</sub> = number of pairs with X = x<sub>i</sub> and F = f<sub>j</sub>.</li>
+            <li><strong>Marginals:</strong> n<sub>i·</sub> = Σ<sub>j</sub> n<sub>ij</sub>, n<sub>·j</sub> = Σ<sub>i</sub> n<sub>ij</sub>, N = Σ n<sub>ij</sub>. Relative frequencies: f<sub>ij</sub> = n<sub>ij</sub>/N, f<sub>i·</sub> = n<sub>i·</sub>/N, f<sub>·j</sub> = n<sub>·j</sub>/N.</li>
+            <li><strong>Conditional frequencies:</strong> f(F=j | X=i) = n<sub>ij</sub>/n<sub>i·</sub> and f(X=i | F=j) = n<sub>ij</sub>/n<sub>·j</sub>.</li>
+            <li><strong>Expected counts under independence:</strong> E<sub>ij</sub> = n<sub>i·</sub> n<sub>·j</sub> / N.</li>
+            <li><strong>Statistic:</strong> χ² = Σ<sub>ij</sub> (n<sub>ij</sub> − E<sub>ij</sub>)² / E<sub>ij</sub>, with df = (r−1)(c−1).</li>
+            <li>
+                <strong>p-value</strong> (optional part): P(χ²<sub>df</sub> ≥ observed) = Q(df/2, χ²/2), where Q is the
+                regularised upper incomplete gamma function. It is implemented from scratch (series and continued fraction),
+                with no libraries.
+            </li>
+            <li>
+                <strong>Cramér's V</strong> = √(χ² / (N · (min(r,c) − 1))), an effect size between 0 and 1.
+                The p-value alone depends on N: with a large sample even a tiny association gives a small p-value.
+            </li>
+        </ol>
+    </section>
+
+    <section>
+        <h2>2. Independence: theory</h2>
+        <ul>
+            <li><strong>Probability:</strong> X and F are independent iff P(X=x, F=f) = P(X=x) P(F=f) for all x, f. Equivalently, P(F=f | X=x) = P(F=f): knowing X does not change the distribution of F.</li>
+            <li><strong>Statistics:</strong> the empirical counterpart is f<sub>ij</sub> = f<sub>i·</sub> f<sub>·j</sub>, i.e. n<sub>ij</sub> = E<sub>ij</sub>, and all conditional distributions equal the marginal one. Perfect equality never happens in a finite sample, because of random fluctuation.</li>
+            <li><strong>Test:</strong> H<sub>0</sub>: X and F are independent. Under H<sub>0</sub> the statistic χ² is approximately χ²<sub>(r−1)(c−1)</sub> for large N. The approximation is considered acceptable when all E<sub>ij</sub> ≥ 5. A small p-value means the observed table would be unlikely if H<sub>0</sub> were true.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>3. Datasets and results</h2>
+        <p>
+            Two datasets are used. <strong>Titanic</strong> is real data (2201 people: travel class vs survival, counts of R's built-in
+            <code>Titanic</code> table, summed over sex and age). <strong>Simulated</strong> data (N = 600: operating system vs breach) are
+            drawn with seed 7 from two independent distributions, so independence holds by construction and the test can be checked on a known case.
+        </p>
+        <div class="card">
+            <p>
+                <label>Dataset:
+                    <select id="dataset">
+                        <option value="both">Both</option>
+                        <option value="titanic">Titanic</option>
+                        <option value="indep">Simulated (independent)</option>
+                    </select>
+                </label>
+                <button id="run">Run</button>
+            </p>
+        </div>
+        <p>The tables are generated when you click Run.</p>
+        <div id="results"></div>
+    </section>
+
+    <section>
+        <h2>4. Interpretation</h2>
+
+        <h3>Titanic: dependence</h3>
+        <ul>
+            <li>χ² ≈ 187.8 with df = 3 gives p ≈ 10<sup>−40</sup>: we reject independence. Survival depends on travel class.</li>
+            <li>The conditional frequencies show how: the survival rate is about 62% in 1st class, 41% in 2nd, 25% in 3rd and 24% for the crew, against 32% overall. Under independence all rows would equal 32%.</li>
+            <li>Cramér's V ≈ 0.29 indicates a moderate association, not just a statistically detectable one. All E<sub>ij</sub> are above 90, so the χ² approximation is reliable.</li>
+        </ul>
+
+        <h3>Simulated: compatible with independence</h3>
+        <ul>
+            <li>χ² ≈ 5.84 with df = 2 gives p ≈ 0.054, just above 0.05: at α = 0.05 we do not reject independence. The conditional frequencies are close to the marginal ones, and Cramér's V ≈ 0.10 is small.</li>
+            <li>This is a borderline result, and it shows the logic of the test: even when independence is true by construction, random sampling produces some deviation, and about 5% of such samples fall below p = 0.05. Failing to reject is lack of evidence against independence, not proof of it.</li>
+        </ul>
+
+        <h3>Association is not causation</h3>
+        <ul>
+            <li>The χ² test only says that the variables are statistically associated. It says nothing about why.</li>
+            <li>On the Titanic, class is plausibly linked to survival through access to lifeboats and the position of the cabins, but the table alone cannot show this. Other variables (sex, age, deck location, the rescue policy "women and children first") are mixed with class and may explain part of the association (confounding).</li>
+            <li>The association is also symmetric: the test treats X and F the same way, so it gives no direction of influence. Establishing causality requires a randomised experiment or an explicit causal model, plus control of confounders.</li>
+        </ul>
+    </section>
+
+    <footer>HMWK 7 - Statistics</footer>
+</main>
+
+<script type="module" src="hw7.js"></script>
+</body>
+</html>
